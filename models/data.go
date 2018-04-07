@@ -28,15 +28,15 @@ var (
 )
 
 func init() {
-	initEnv()
+	// initEnv()
 	initDB()
 	initSchema()
 }
 
 func initEnv() {
-	// if err := env(); err != nil {
-	// 	panic(err)
-	// }
+	if err := env(); err != nil {
+		panic(err)
+	}
 }
 
 func initDB() {
@@ -49,10 +49,8 @@ func initDB() {
 }
 
 func initSchema() {
-	// db.DropTableIfExists(new(User), new(Team), new(Activity), new(Invitation), new(DovePoint),
-	// 	new(MvpPoint), new(DoveRecord), new(MvpRecord), new(DoveVote), new(MvpVote))
-	// db.AutoMigrate(new(User), new(Team), new(Activity), new(Invitation), new(DovePoint),
-	// 	new(MvpPoint), new(DoveRecord), new(MvpRecord), new(DoveVote), new(MvpVote))
+	db.AutoMigrate(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
+		new(Label), new(Picture), new(Tips))
 }
 
 func env() error {
