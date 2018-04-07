@@ -11,7 +11,4 @@ const (
 	ActivityCanceled
 	ActivityStarted
 	ActivitySuccessed
-
-	TeamLeisure
-	TeamBusy
 )
