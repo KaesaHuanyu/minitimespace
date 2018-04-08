@@ -15,13 +15,12 @@ type User struct {
 	Province string `gorm:"not null"`
 	City     string `gorm:"not null"`
 
-	Favours   []Favour
-	Timespace []Timespace `gorm:"many2many:timespace_users"`
-	Labels    []Label
-	Tips      []Tips
-	Chats     []Chat
-	Albums    []Album
-	Pictures  []Picture
+	Favours  []Favour
+	Labels   []Label
+	Tips     []Tips
+	Chats    []Chat
+	Albums   []Album
+	Pictures []Picture
 }
 
 func (u *User) Create() (err error) {
@@ -29,17 +28,14 @@ func (u *User) Create() (err error) {
 	return
 }
 
-func (u *User) GetTimespace() (timespace []Timespace, err error) {
-	timespace = make([]Timespace, 0)
-	err = db.Model(u).Related(&timespace).Error
+func GetUserById(uid uint) (u *User, err error) {
+	u = new(User)
+	err = db.First(u, uid).Error
 	return
 }
 
-func (u *User) JoinTimespace(tid uint) (err error) {
-	t, err := GetTimespaceById(tid)
-	if err != nil {
-		return err
-	}
-	err = db.Model(u).Association("Timespace").Append(t).Error
+func (u *User) GetTimespace() (timespace []Timespace, err error) {
+	timespace = make([]Timespace, 0)
+	err = db.Model(u).Related(&timespace).Error
 	return
 }

@@ -43,12 +43,12 @@ func (h *Handler) info(tag, format string, args ...interface{}) {
 	logrus.Infoln(fmt.Sprintf("%s: ", tag) + fmt.Sprintf(format, args...))
 }
 
-func (h *Handler) danger(tag, format string, args ...interface{}) {
-	logrus.Errorln(fmt.Sprintf("%s: ", tag) + fmt.Sprintf(format, args...))
-}
-
 func (h *Handler) warning(tag, format string, args ...interface{}) {
 	logrus.Warningln(fmt.Sprintf("%s: ", tag) + fmt.Sprintf(format, args...))
+}
+
+func (h *Handler) danger(tag, format string, args ...interface{}) {
+	logrus.Errorln(fmt.Sprintf("%s: ", tag) + fmt.Sprintf(format, args...))
 }
 
 func (h *Handler) updateAccessToken() (err error) {
@@ -62,13 +62,13 @@ func (h *Handler) updateAccessToken() (err error) {
 	}
 	if data.Errcode != 0 {
 		err = fmt.Errorf("%+v", data)
+		return
 	}
 	h.miniProgramAccessToken = data.AccessToken
 	return
 }
 
 func (h *Handler) AccessTokenUpdater() {
-
 	for {
 		select {
 		case <-h.updateAccessTokenChan:
@@ -77,7 +77,7 @@ func (h *Handler) AccessTokenUpdater() {
 				h.updateAccessTokenChan <- true
 				continue
 			}
-			h.info("AccessTokenUpdater", "更新access_token成功，access_token:[%s]", h.miniProgramAccessToken)
+			h.info("AccessTokenUpdater", "更新access_token成功，access_token: [%s]", h.miniProgramAccessToken)
 		}
 	}
 }

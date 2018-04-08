@@ -20,11 +20,11 @@ var connStr string
 var (
 	// host = "192.168.31.137"
 	// host     = "huanyu0w0.cn"
-	host     = "xiaoheidui.cn"
-	port     = "65432"
+	host     = "localhost"
+	port     = "9527"
 	dbname   = "postgres"
 	user     = "postgres"
-	password = "postgres"
+	password = "mysecretpassword"
 )
 
 func init() {
@@ -49,6 +49,8 @@ func initDB() {
 }
 
 func initSchema() {
+	db.DropTableIfExists(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
+		new(Label), new(Picture), new(Tips))
 	db.AutoMigrate(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
 		new(Label), new(Picture), new(Tips))
 }

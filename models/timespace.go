@@ -14,7 +14,7 @@ type Timespace struct {
 
 	UserID uint    `gorm:"not null"`
 	Users  []User  `gorm:"many2many:timespace_users"`
-	Labels []Label `gorm:"many2many:timespace_labels;"`
+	Labels []Label `gorm:"many2many:timespace_labels"`
 	Tips   []Tips
 	Chats  []Chat
 	Albums []Album
@@ -43,6 +43,12 @@ func (t *Timespace) GetUsers() (users []User, err error) {
 	return
 }
 
-func (t *Timespace) AddUser(uid uint) (err error) {
+func (t *Timespace) AddUser(values ...interface{}) (err error) {
+	err = db.Model(t).Association("Users").Append(values).Error
+	return
+}
+
+func (t *Timespace) AddLabel(values ...interface{}) (err error) {
+	err = db.Model(t).Association("Labels").Append(values).Error
 	return
 }
