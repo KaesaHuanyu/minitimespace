@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	//postgresql driver
 	_ "github.com/lib/pq"
@@ -14,17 +18,19 @@ import (
 
 //DB is a pg connection
 var db *gorm.DB
+var client *redis.Client
 var err error
 var connStr string
 
 var (
 	// host = "192.168.31.137"
 	// host     = "huanyu0w0.cn"
-	host     = "localhost"
-	port     = "9527"
-	dbname   = "postgres"
-	user     = "postgres"
-	password = "mysecretpassword"
+	host      = "localhost"
+	port      = "9527"
+	dbname    = "postgres"
+	user      = "postgres"
+	password  = "mysecretpassword"
+	redisAddr = "xiaoheidui.cn:16379"
 )
 
 func init() {
@@ -45,7 +51,14 @@ func initDB() {
 	if db, err = gorm.Open("postgres", connStr); err != nil {
 		panic("Failed to connect database: " + err.Error())
 	}
-	// db.LogMode(true)
+	db.LogMode(true)
+
+	client = redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+	})
+	if client == nil {
+		panic(client)
+	}
 }
 
 func initSchema() {
@@ -82,8 +95,14 @@ func env() error {
 
 //refresh the database connection
 func refresh() {
-	if db, err = gorm.Open("postgres", connStr); err != nil {
-		panic("Failed to connect database: " + err.Error())
+	for {
+		db, err = gorm.Open("postgres", connStr)
+		if err != nil {
+			logrus.Errorf("Failed to connect database: err=[%+v]", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		break
 	}
 }
 

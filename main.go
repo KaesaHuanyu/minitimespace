@@ -1,6 +1,7 @@
 package main
 
 import (
+	"minitimespace/handlers"
 	_ "minitimespace/models"
 
 	"github.com/labstack/echo"
@@ -10,21 +11,16 @@ import (
 func main() {
 	e := echo.New()
 	e.Use(middleware.Recover())
-	// h := handlers.New()
-	// go h.AccessTokenUpdater()
+	h := handlers.New()
+	go h.AccessTokenUpdater()
 
 	//APIs List Route
 	// e.GET("/", apis)
 
 	//Login Route
-	// e.POST("/login", h.Login)
+	e.GET("/login", h.Login)
 
-	//Unauthenticated Route
-
-	//Restricted Route
-	// r := e.Group("/restricted")
-	// r.Use(middleware.JWT([]byte("secret")))
-	// r.GET("", h.Restricted)
+	e.POST("/users", h.Protect(h.CreateUser))
 
 	e.Start(":8823")
 }

@@ -34,7 +34,7 @@ func New() (handler *Handler) {
 	handler = new(Handler)
 	handler.updateAccessTokenChan = make(chan bool)
 	go func() {
-		handler.updateAccessTokenChan <- true
+		// handler.updateAccessTokenChan <- true
 	}()
 	return
 }

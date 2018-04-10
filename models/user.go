@@ -35,6 +35,12 @@ func GetUserById(uid uint) (u *User, err error) {
 	return
 }
 
+func GetUserByOpenId(openId string) (u *User, err error) {
+	u = new(User)
+	err = db.First(u, "open_id = ?", openId).Error
+	return
+}
+
 func (u *User) GetFavours() (favs []Favour, err error) {
 	favs = make([]Favour, 0)
 	err = db.Model(u).Related(&favs, "Favours").Error

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -11,8 +9,8 @@ type Timespace struct {
 	Topic     string  `gorm:"not null;size:32"`
 	Labels    []Label `gorm:"many2many:timespace_labels"`
 	Desc      string
-	StartTime time.Time `gorm:"not null"`
-	EndTime   time.Time `gorm:"not null"`
+	StartTime string `gorm:"not null"`
+	EndTime   string `gorm:"not null"`
 
 	UserID uint   `gorm:"not null"`
 	Users  []User `gorm:"many2many:timespace_users"`

@@ -1,50 +1,97 @@
 package handlers
 
 import (
+	"crypto/sha1"
+	"fmt"
+	"minitimespace/models"
 	"net/http"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/levigross/grequests"
+
 	"github.com/labstack/echo"
 )
 
-//Login create a token for current user
+//Login 接收小程序传来的code，获取openid与session_key
 func (h *Handler) Login(c echo.Context) (err error) {
-	username := c.QueryParam("username")
-	//jwt
-	//create token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userName": username,
-		"userID":   "8823",
-		"exp":      time.Now().Add(time.Hour * 72).Unix(),
-	})
-
-	//encode signed
-	t, err := token.SignedString([]byte("secret"))
+	r := responses()
+	code := c.QueryParam("code")
+	if code == "" {
+		err = fmt.Errorf("code参数为空")
+		r.Code = RequestErr
+		r.Error = err.Error()
+		h.danger("Login", "c.QueryParam, err=[%+v]", err)
+		return c.JSON(http.StatusBadRequest, r)
+	}
+	resp, err := grequests.Get(fmt.Sprintf(WeChatLoginCredentialsCheck, code), nil)
 	if err != nil {
-		return
+		r.Code = HTTPGetErr
+		r.Error = err.Error()
+		h.danger("Login", "grequests.Get, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+	wxresp := new(loginCredentialsCheckResponse)
+	err = resp.JSON(wxresp)
+	if err != nil {
+		r.Code = JSONErr
+		r.Error = err.Error()
+		h.danger("Login", "resp.JSON, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+	if wxresp.Errcode != 0 {
+		err = fmt.Errorf("%+v", wxresp)
+		r.Code = WxApiErr
+		r.Error = err.Error()
+		h.danger("Login", "wxresp.Errcode != 0, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
 	}
 
-	return c.JSONPretty(http.StatusOK, map[string]string{
-		"token": t,
-	}, "	")
-}
+	//对openid和session_key哈希加密
+	hash := sha1.New()
+	hash.Write([]byte(wxresp.Openid + wxresp.SessionKey))
+	session := string(hash.Sum(nil))
 
-//Restricted is
-func (h *Handler) Restricted(c echo.Context) (err error) {
-	userToken := c.Get("user").(*jwt.Token)
-	userClaims := userToken.Claims.(jwt.MapClaims)
-	username := userClaims["userName"].(string)
-	userID := userClaims["userID"].(string)
-	return c.String(http.StatusOK, "Welcome "+username+`!
-		Your ID is `+userID)
+	//将session存入redis
+	s := &models.Session{
+		OpenId:     wxresp.Openid,
+		SessionKey: wxresp.SessionKey,
+	}
+	err = s.Set(session)
+	if err != nil {
+		r.Code = SessionErr
+		r.Error = err.Error()
+		h.danger("Login", "s.Set, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	r.Info = "SUCCESS"
+	r.Data["session"] = session
+	r.Data["expiration"] = time.Now().Add(30 * 24 * time.Hour).Unix()
+	return c.JSON(http.StatusOK, r)
 }
 
 //Protect is used to protect data
 func (h *Handler) Protect(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+	return func(c echo.Context) (err error) {
 		//check if user is logged in
 		//TODO
+		r := responses()
+		session := c.QueryParam("session")
+		if session == "" {
+			err = fmt.Errorf("session参数为空")
+			r.Code = RequestErr
+			r.Error = err.Error()
+			h.danger("Protect", "c.QueryParam, err=[%+v]", err)
+			return c.JSON(http.StatusBadRequest, r)
+		}
+		s, err := models.GetSession(session)
+		if err != nil {
+			r.Code = SessionErr
+			r.Error = err.Error()
+			h.danger("Protect", "models.GetSession, err=[%+v]", err)
+			return c.JSON(http.StatusInternalServerError, r)
+		}
+		c.Set("openid", s.OpenId)
 		return handlerFunc(c)
 	}
 }
