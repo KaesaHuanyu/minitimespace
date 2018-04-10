@@ -8,13 +8,14 @@ import (
 
 type Timespace struct {
 	gorm.Model
-	Topic     string    `gorm:"not null;size:32"`
+	Topic     string  `gorm:"not null;size:32"`
+	Labels    []Label `gorm:"many2many:timespace_labels"`
+	Desc      string
 	StartTime time.Time `gorm:"not null"`
 	EndTime   time.Time `gorm:"not null"`
 
-	UserID uint    `gorm:"not null"`
-	Users  []User  `gorm:"many2many:timespace_users"`
-	Labels []Label `gorm:"many2many:timespace_labels"`
+	UserID uint   `gorm:"not null"`
+	Users  []User `gorm:"many2many:timespace_users"`
 	Tips   []Tips
 	Chats  []Chat
 	Albums []Album
@@ -39,16 +40,34 @@ func GetCreatedTimespaceByUid(uid uint) (timespace []Timespace, err error) {
 
 func (t *Timespace) GetUsers() (users []User, err error) {
 	users = make([]User, 0)
-	err = db.Model(t).Related(&users).Error
+	err = db.Model(t).Related(&users, "Users").Error
 	return
 }
 
-func (t *Timespace) AddUser(values ...interface{}) (err error) {
-	err = db.Model(t).Association("Users").Append(values).Error
+func (t *Timespace) GetTips() (tips []Tips, err error) {
+	tips = make([]Tips, 0)
+	err = db.Model(t).Related(&tips, "Tips").Error
 	return
 }
 
-func (t *Timespace) AddLabel(values ...interface{}) (err error) {
-	err = db.Model(t).Association("Labels").Append(values).Error
+func (t *Timespace) GetChats() (chats []Chat, err error) {
+	chats = make([]Chat, 0)
+	err = db.Model(t).Related(&chats, "Chats").Error
+	return
+}
+
+func (t *Timespace) GetAlbums() (albums []Album, err error) {
+	albums = make([]Album, 0)
+	err = db.Model(t).Related(&albums, "Albums").Error
+	return
+}
+
+func (t *Timespace) AddUser(u User) (err error) {
+	err = db.Model(t).Association("Users").Append(u).Error
+	return
+}
+
+func (t *Timespace) AddLabel(labels []Label) (err error) {
+	err = db.Model(t).Association("Labels").Append(labels).Error
 	return
 }

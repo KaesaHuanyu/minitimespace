@@ -49,8 +49,9 @@ func initDB() {
 }
 
 func initSchema() {
-	db.DropTableIfExists(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
-		new(Label), new(Picture), new(Tips))
+	// db.DropTableIfExists(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
+	// 	new(Label), new(Picture), new(Tips))
+	// db.LogMode(true)
 	db.AutoMigrate(new(User), new(Timespace), new(Album), new(Chat), new(Favour),
 		new(Label), new(Picture), new(Tips))
 }

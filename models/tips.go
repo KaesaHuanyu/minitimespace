@@ -12,3 +12,20 @@ type Tips struct {
 
 	Favours []Favour `gorm:"ForeignKey:TargetID"`
 }
+
+func (t *Tips) Create() (err error) {
+	err = db.Create(t).Error
+	return
+}
+
+func GetTipsById(tid uint) (t *Tips, err error) {
+	t = new(Tips)
+	err = db.First(t, tid).Error
+	return
+}
+
+func (t *Tips) GetFavours() (favs []Favour, err error) {
+	favs = make([]Favour, 0)
+	err = db.Model(t).Where("type = ?", TipsFavour).Related(&favs, "Favours").Error
+	return
+}
