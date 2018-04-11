@@ -3,10 +3,12 @@ package handlers
 const (
 	_ = iota
 	RequestErr
+	BindErr
 	HTTPGetErr
 	WxApiErr
 	JSONErr
 	SessionErr
+	DatabaseErr
 
 	MiniProgramAppID                     = "wx54708c54c1c17b21"
 	MiniProgramAppSecret                 = "d0088d19e9cfba2e91fb41ecda5f2cea"

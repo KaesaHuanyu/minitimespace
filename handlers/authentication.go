@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"minitimespace/models"
 	"net/http"
@@ -47,16 +46,16 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	}
 
 	//对openid和session_key哈希加密
-	hash := sha1.New()
-	hash.Write([]byte(wxresp.Openid + wxresp.SessionKey))
-	session := string(hash.Sum(nil))
+	// hash := sha1.New()
+	// hash.Write([]byte(wxresp.Openid + wxresp.SessionKey))
+	// session := string(hash.Sum(nil))
 
 	//将session存入redis
 	s := &models.Session{
 		OpenId:     wxresp.Openid,
 		SessionKey: wxresp.SessionKey,
 	}
-	err = s.Set(session)
+	err = s.Set()
 	if err != nil {
 		r.Code = SessionErr
 		r.Error = err.Error()
@@ -64,8 +63,8 @@ func (h *Handler) Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 
-	r.Info = "SUCCESS"
-	r.Data["session"] = session
+	r.Info = "LOGIN SUCCESS"
+	r.Data["session_key"] = s.SessionKey
 	r.Data["expiration"] = time.Now().Add(30 * 24 * time.Hour).Unix()
 	return c.JSON(http.StatusOK, r)
 }
@@ -76,22 +75,22 @@ func (h *Handler) Protect(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		//check if user is logged in
 		//TODO
 		r := responses()
-		session := c.QueryParam("session")
-		if session == "" {
-			err = fmt.Errorf("session参数为空")
+		sessionKey := c.QueryParam("session_key")
+		if sessionKey == "" {
+			err = fmt.Errorf("session_key参数为空")
 			r.Code = RequestErr
 			r.Error = err.Error()
 			h.danger("Protect", "c.QueryParam, err=[%+v]", err)
 			return c.JSON(http.StatusBadRequest, r)
 		}
-		s, err := models.GetSession(session)
+		openid, err := models.GetOpenIdBySession(sessionKey)
 		if err != nil {
 			r.Code = SessionErr
 			r.Error = err.Error()
 			h.danger("Protect", "models.GetSession, err=[%+v]", err)
 			return c.JSON(http.StatusInternalServerError, r)
 		}
-		c.Set("openid", s.OpenId)
+		c.Set("openid", openid)
 		return handlerFunc(c)
 	}
 }

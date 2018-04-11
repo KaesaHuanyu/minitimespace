@@ -7,13 +7,14 @@ import (
 //User is
 type User struct {
 	gorm.Model
-	OpenID   string `gorm:"not null;unique_index"`
-	Name     string `gorm:"not null"`
-	Avatar   string `gorm:"not null"`
-	Gender   int    `gorm:"not null"`
-	Country  string `gorm:"not null"`
-	Province string `gorm:"not null"`
-	City     string `gorm:"not null"`
+	OpenId   string `gorm:"not null;unique_index"`
+	Name     string
+	Avatar   string
+	Gender   string
+	Country  string
+	Province string
+	City     string
+	Language string
 
 	Favours   []Favour
 	Labels    []Label
@@ -26,6 +27,11 @@ type User struct {
 
 func (u *User) Create() (err error) {
 	err = db.Create(u).Error
+	return
+}
+
+func (u *User) Update(updates map[string]interface{}) (err error) {
+	err = db.Model(u).Updates(updates).Error
 	return
 }
 
