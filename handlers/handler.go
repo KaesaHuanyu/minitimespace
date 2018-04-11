@@ -15,7 +15,7 @@ type (
 	}
 
 	response struct {
-		Code    int
+		Code    int                    `json:"code"`
 		Data    map[string]interface{} `json:"data,omitempty"`
 		Error   string                 `json:"error,omitempty"`
 		Warning string                 `json:"warning,omitempty"`
@@ -34,7 +34,7 @@ func New() (handler *Handler) {
 	handler = new(Handler)
 	handler.updateAccessTokenChan = make(chan bool)
 	go func() {
-		// handler.updateAccessTokenChan <- true
+		handler.updateAccessTokenChan <- true
 	}()
 	return
 }

@@ -24,6 +24,6 @@ func GetLabelById(lid uint) (l *Label, err error) {
 
 func (l *Label) GetTimespace() (ts []Timespace, err error) {
 	ts = make([]Timespace, 0)
-	err = db.Model(l).Related(&ts, "Timespace").Error
+	err = db.Model(l).Where("user_id = ?", l.UserID).Related(&ts, "Timespace").Error
 	return
 }

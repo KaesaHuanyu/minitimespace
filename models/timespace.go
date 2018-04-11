@@ -30,12 +30,6 @@ func GetTimespaceById(tid uint) (timespace *Timespace, err error) {
 	return
 }
 
-func GetCreatedTimespaceByUid(uid uint) (timespace []Timespace, err error) {
-	timespace = make([]Timespace, 0)
-	err = db.Find(&timespace, "user_id = ?", uid).Error
-	return
-}
-
 func (t *Timespace) GetUsers() (users []User, err error) {
 	users = make([]User, 0)
 	err = db.Model(t).Related(&users, "Users").Error
@@ -44,19 +38,25 @@ func (t *Timespace) GetUsers() (users []User, err error) {
 
 func (t *Timespace) GetTips() (tips []Tips, err error) {
 	tips = make([]Tips, 0)
-	err = db.Model(t).Related(&tips, "Tips").Error
+	err = db.Model(t).Order("id desc").Related(&tips, "Tips").Error
 	return
 }
 
 func (t *Timespace) GetChats() (chats []Chat, err error) {
 	chats = make([]Chat, 0)
-	err = db.Model(t).Related(&chats, "Chats").Error
+	err = db.Model(t).Order("id desc").Related(&chats, "Chats").Error
+	return
+}
+
+func (t *Timespace) GetLabels() (labels []Label, err error) {
+	labels = make([]Label, 0)
+	err = db.Model(t).Related(&labels, "Labels").Error
 	return
 }
 
 func (t *Timespace) GetAlbums() (albums []Album, err error) {
 	albums = make([]Album, 0)
-	err = db.Model(t).Related(&albums, "Albums").Error
+	err = db.Model(t).Order("id desc").Related(&albums, "Albums").Error
 	return
 }
 

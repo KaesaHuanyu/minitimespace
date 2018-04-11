@@ -21,6 +21,7 @@ func main() {
 	e.GET("/login", h.Login)
 
 	e.POST("/users", h.Protect(h.CreateUser))
+	e.GET("/timespace", h.Protect(h.GetTimespace))
 
 	e.Start(":8823")
 }

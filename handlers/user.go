@@ -21,7 +21,7 @@ func (h *Handler) CreateUser(c echo.Context) (err error) {
 	}
 	openid := c.Get("openid").(string)
 	u, err := models.GetUserByOpenId(openid)
-	if err == nil {
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			//新建用户
 			u = &models.User{
@@ -51,23 +51,39 @@ func (h *Handler) CreateUser(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 	//更新user
-	err = u.Update(map[string]interface{}{
-		"name":     request.NickName,
-		"avatar":   request.AvatarURL,
-		"gender":   request.Gender,
-		"country":  request.Country,
-		"province": request.Province,
-		"city":     request.City,
-		"language": request.Language,
-	})
-	if err != nil {
-		r.Code = DatabaseErr
-		r.Error = err.Error()
-		h.danger("CreateUser", "u.Update, err=[%+v]", err)
-		return c.JSON(http.StatusInternalServerError, r)
+	updates := make(map[string]interface{})
+	if u.Name != request.NickName {
+		updates["name"] = request.NickName
+	}
+	if u.Avatar != request.AvatarURL {
+		updates["avatar"] = request.AvatarURL
+	}
+	if u.Gender != request.Gender {
+		updates["gender"] = request.Gender
+	}
+	if u.Country != request.Country {
+		updates["country"] = request.Country
+	}
+	if u.Province != request.Province {
+		updates["province"] = request.Province
+	}
+	if u.City != request.City {
+		updates["city"] = request.City
+	}
+	if u.Language != request.Language {
+		updates["language"] = request.Language
+	}
+	if len(updates) > 0 {
+		err = u.Update(updates)
+		if err != nil {
+			r.Code = DatabaseErr
+			r.Error = err.Error()
+			h.danger("CreateUser", "u.Update, err=[%+v]", err)
+			return c.JSON(http.StatusInternalServerError, r)
+		}
 	}
 
 	r.Info = "CREATED"
-	h.info("CreateUser", "更新用户基本信息, user=[%+v]", u)
+	h.info("CreateUser", "更新用户基本信息, updates=[%+v]", updates)
 	return c.JSON(http.StatusCreated, r)
 }

@@ -10,7 +10,7 @@ type User struct {
 	OpenId   string `gorm:"not null;unique_index"`
 	Name     string
 	Avatar   string
-	Gender   string
+	Gender   int
 	Country  string
 	Province string
 	City     string
@@ -31,6 +31,9 @@ func (u *User) Create() (err error) {
 }
 
 func (u *User) Update(updates map[string]interface{}) (err error) {
+	if u.ID == 0 {
+		return gorm.ErrRecordNotFound
+	}
 	err = db.Model(u).Updates(updates).Error
 	return
 }
@@ -61,30 +64,36 @@ func (u *User) GetLabels() (labels []Label, err error) {
 
 func (u *User) GetTips() (tips []Tips, err error) {
 	tips = make([]Tips, 0)
-	err = db.Model(u).Related(&tips, "Tips").Error
+	err = db.Model(u).Order("id desc").Related(&tips, "Tips").Error
 	return
 }
 
 func (u *User) GetChats() (chats []Chat, err error) {
 	chats = make([]Chat, 0)
-	err = db.Model(u).Related(&chats, "Chats").Error
+	err = db.Model(u).Order("id desc").Related(&chats, "Chats").Error
 	return
 }
 
 func (u *User) GetAlbums() (albums []Album, err error) {
 	albums = make([]Album, 0)
-	err = db.Model(u).Related(&albums, "Albums").Error
+	err = db.Model(u).Order("id desc").Related(&albums, "Albums").Error
 	return
 }
 
 func (u *User) GetPictures() (pictures []Picture, err error) {
 	pictures = make([]Picture, 0)
-	err = db.Model(u).Related(&pictures, "Pictures").Error
+	err = db.Model(u).Order("id desc").Related(&pictures, "Pictures").Error
+	return
+}
+
+func (u *User) GetCreatedTimespace() (timespace []Timespace, err error) {
+	timespace = make([]Timespace, 0)
+	err = db.Order("updated_at desc").Find(&timespace, "user_id = ?", u.ID).Error
 	return
 }
 
 func (u *User) GetAddedTimespace() (timespace []Timespace, err error) {
 	timespace = make([]Timespace, 0)
-	err = db.Model(u).Related(&timespace, "Timespace").Error
+	err = db.Model(u).Order("updated_at desc").Related(&timespace, "Timespace").Error
 	return
 }

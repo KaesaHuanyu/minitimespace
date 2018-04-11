@@ -66,6 +66,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	r.Info = "LOGIN SUCCESS"
 	r.Data["session_key"] = s.SessionKey
 	r.Data["expiration"] = time.Now().Add(30 * 24 * time.Hour).Unix()
+	h.info("Login", "登录成功, session=[%+v]", s)
 	return c.JSON(http.StatusOK, r)
 }
 
