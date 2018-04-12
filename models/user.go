@@ -88,12 +88,12 @@ func (u *User) GetPictures() (pictures []Picture, err error) {
 
 func (u *User) GetCreatedTimespace() (timespace []Timespace, err error) {
 	timespace = make([]Timespace, 0)
-	err = db.Order("updated_at desc").Find(&timespace, "user_id = ?", u.ID).Error
+	err = db.Order("id desc").Find(&timespace, "user_id = ?", u.ID).Error
 	return
 }
 
 func (u *User) GetAddedTimespace() (timespace []Timespace, err error) {
 	timespace = make([]Timespace, 0)
-	err = db.Model(u).Order("updated_at desc").Related(&timespace, "Timespace").Error
+	err = db.Model(u).Order("id desc").Related(&timespace, "Timespace").Error
 	return
 }

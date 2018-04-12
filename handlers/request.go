@@ -10,4 +10,12 @@ type (
 		Country   string `json:"country,omitempty"`
 		Language  string `json:"language,omitempty"`
 	}
+
+	requestCreateTimespace struct {
+		Topic     string `json:"topic,omitempty"`
+		Desc      string `json:"desc,omitempty"`
+		StartTime string `json:"start_time,omitempty"`
+		EndTime   string `json:"end_time,omitempty"`
+		Labels    []uint `json:"labels,omitempty"`
+	}
 )

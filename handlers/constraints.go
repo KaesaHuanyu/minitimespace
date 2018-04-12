@@ -5,7 +5,7 @@ const (
 	RequestErr
 	BindErr
 	HTTPGetErr
-	WxApiErr
+	WxAPIErr
 	JSONErr
 	SessionErr
 	DatabaseErr

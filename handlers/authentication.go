@@ -39,7 +39,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 	}
 	if wxresp.Errcode != 0 {
 		err = fmt.Errorf("%+v", wxresp)
-		r.Code = WxApiErr
+		r.Code = WxAPIErr
 		r.Error = err.Error()
 		h.danger("Login", "wxresp.Errcode != 0, err=[%+v]", err)
 		return c.JSON(http.StatusInternalServerError, r)
@@ -78,7 +78,7 @@ func (h *Handler) Protect(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		r := responses()
 		sessionKey := c.QueryParam("session_key")
 		if sessionKey == "" {
-			err = fmt.Errorf("session_key参数为空")
+			err = fmt.Errorf("请登录后再操作")
 			r.Code = RequestErr
 			r.Error = err.Error()
 			h.danger("Protect", "c.QueryParam, err=[%+v]", err)

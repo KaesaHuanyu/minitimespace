@@ -27,3 +27,7 @@ func (l *Label) GetTimespace() (ts []Timespace, err error) {
 	err = db.Model(l).Where("user_id = ?", l.UserID).Related(&ts, "Timespace").Error
 	return
 }
+
+func (l *Label) CountTimespace() (count int) {
+	return db.Model(l).Where("user_id = ?", l.UserID).Association("Timespace").Count()
+}

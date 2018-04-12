@@ -20,7 +20,7 @@ type (
 	}
 
 	timespaceDesc struct {
-		Id        uint        `json:"id,omitempty"`
+		ID        uint        `json:"id,omitempty"`
 		Topic     string      `json:"topic,omitempty"`
 		Desc      string      `json:"desc,omitempty"`
 		StartTime string      `json:"start_time,omitempty"`
@@ -30,12 +30,12 @@ type (
 	}
 
 	labelDesc struct {
-		Id   uint   `json:"id,omitempty"`
+		ID   uint   `json:"id,omitempty"`
 		Name string `json:"name,omitempty"`
 	}
 
 	userDesc struct {
-		Id     uint   `json:"id,omitempty"`
+		ID     uint   `json:"id,omitempty"`
 		Name   string `json:"name,omitempty"`
 		Avatar string `json:"avatar,omitempty"`
 	}
