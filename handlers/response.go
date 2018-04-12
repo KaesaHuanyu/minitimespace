@@ -20,11 +20,23 @@ type (
 	}
 
 	timespaceDesc struct {
-		Topic       string   `json:"topic,omitempty"`
-		Desc        string   `json:"desc,omitempty"`
-		StartTime   string   `json:"start_time,omitempty"`
-		EndTime     string   `json:"end_time,omitempty"`
-		LabelNames  []string `json:"label_names,omitempty"`
-		UserAvatars []string `json:"user_avatars,omitempty"`
+		Id        uint        `json:"id,omitempty"`
+		Topic     string      `json:"topic,omitempty"`
+		Desc      string      `json:"desc,omitempty"`
+		StartTime string      `json:"start_time,omitempty"`
+		EndTime   string      `json:"end_time,omitempty"`
+		Labels    []labelDesc `json:"label_names,omitempty"`
+		Users     []userDesc  `json:"user_avatars,omitempty"`
+	}
+
+	labelDesc struct {
+		Id   uint   `json:"id,omitempty"`
+		Name string `json:"name,omitempty"`
+	}
+
+	userDesc struct {
+		Id     uint   `json:"id,omitempty"`
+		Name   string `json:"name,omitempty"`
+		Avatar string `json:"avatar,omitempty"`
 	}
 )

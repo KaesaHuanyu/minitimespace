@@ -7,21 +7,21 @@ import (
 	"github.com/labstack/echo"
 )
 
-func (h *Handler) GetHomeTimespace(c echo.Context) (err error) {
+func (h *Handler) GetTimespace(c echo.Context) (err error) {
 	r := responses()
 	openid := c.Get("openid").(string)
 	u, err := models.GetUserByOpenId(openid)
 	if err != nil {
 		r.Code = DatabaseErr
 		r.Error = err.Error()
-		h.danger("GetHomeTimespace", "models.GetUserByOpenId, err=[%+v]", err)
+		h.danger("GetTimespace", "models.GetUserByOpenId, err=[%+v]", err)
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 	timespace, err := u.GetAddedTimespace()
 	if err != nil {
 		r.Code = DatabaseErr
 		r.Error = err.Error()
-		h.danger("GetHomeTimespace", "u.GetAddedTimespace, err=[%+v]", err)
+		h.danger("GetTimespace", "u.GetAddedTimespace, err=[%+v]", err)
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 	timespaceDescs := make([]timespaceDesc, len(timespace))
@@ -30,36 +30,40 @@ func (h *Handler) GetHomeTimespace(c echo.Context) (err error) {
 		if err != nil {
 			r.Code = DatabaseErr
 			r.Error = err.Error()
-			h.danger("GetHomeTimespace", "timespace[i].GetLabels, err=[%+v]", err)
+			h.danger("GetTimespace", "timespace[i].GetLabels, err=[%+v]", err)
 			return c.JSON(http.StatusInternalServerError, r)
 		}
-		labelNames := make([]string, len(labels))
+		labelDescs := make([]labelDesc, len(labels))
 		for j := range labels {
-			labelNames[j] = labels[j].Name
+			labelDescs[j].Id = labels[j].ID
+			labelDescs[j].Name = labels[j].Name
 		}
 		users, err := timespace[i].GetUsers()
 		if err != nil {
 			r.Code = DatabaseErr
 			r.Error = err.Error()
-			h.danger("GetHomeTimespace", "timespace[i].GetUsers, err=[%+v]", err)
+			h.danger("GetTimespace", "timespace[i].GetUsers, err=[%+v]", err)
 			return c.JSON(http.StatusInternalServerError, r)
 		}
-		userAvatars := make([]string, len(users))
+		userDescs := make([]userDesc, len(users))
 		for k := range users {
-			userAvatars[k] = users[k].Avatar
+			userDescs[k].Id = users[k].ID
+			userDescs[k].Name = users[k].Name
+			userDescs[k].Avatar = users[k].Avatar
 		}
 		timespaceDescs[i] = timespaceDesc{
-			Topic:       timespace[i].Topic,
-			Desc:        timespace[i].Desc,
-			StartTime:   timespace[i].StartTime,
-			EndTime:     timespace[i].EndTime,
-			LabelNames:  labelNames,
-			UserAvatars: userAvatars,
+			Id:        timespace[i].ID,
+			Topic:     timespace[i].Topic,
+			Desc:      timespace[i].Desc,
+			StartTime: timespace[i].StartTime,
+			EndTime:   timespace[i].EndTime,
+			Labels:    labelDescs,
+			Users:     userDescs,
 		}
 	}
 
 	r.Info = "GET SUCCESS"
 	r.Data["timespace"] = timespaceDescs
-	h.info("GetHomeTimespace", "Get timespace=[%+v]", timespaceDescs)
+	h.info("GetTimespace", "Get timespace=[%+v]", timespaceDescs)
 	return c.JSON(http.StatusOK, r)
 }
