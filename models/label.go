@@ -16,9 +16,9 @@ func (l *Label) Create() (err error) {
 	return
 }
 
-func GetLabelById(lid uint) (l *Label, err error) {
-	l = new(Label)
-	err = db.First(l, lid).Error
+func GetLabelsByIds(lids []uint) (labels []Label, err error) {
+	labels = make([]Label, 0)
+	err = db.Where(lids).Find(labels).Error
 	return
 }
 

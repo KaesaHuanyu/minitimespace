@@ -9,7 +9,10 @@ const (
 	JSONErr
 	SessionErr
 	DatabaseErr
+	RedoErr
+)
 
+const (
 	MiniProgramAppID                     = "wx54708c54c1c17b21"
 	MiniProgramAppSecret                 = "d0088d19e9cfba2e91fb41ecda5f2cea"
 	WeChatGetAccessToken                 = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s"

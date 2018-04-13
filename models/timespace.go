@@ -37,6 +37,13 @@ func (t *Timespace) Create() (err error) {
 		tx.Rollback()
 		return
 	}
+	if len(u.Labels) > 0 {
+		err = tx.Model(t).Association("Labels").Append(t.Labels).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
 	tx.Commit()
 	return
 }
@@ -107,4 +114,11 @@ func (t *Timespace) AddUser(u User) (err error) {
 func (t *Timespace) AddLabel(labels []Label) (err error) {
 	err = db.Model(t).Association("Labels").Append(labels).Error
 	return
+}
+
+func (t *Timespace) WhetherTheUserJoined(u User) bool {
+	if db.Model(t).Where("user_id = ?", u.ID).Association("Users").Count() == 0 {
+		return false
+	}
+	return true
 }
