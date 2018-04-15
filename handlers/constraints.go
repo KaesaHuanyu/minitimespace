@@ -10,6 +10,7 @@ const (
 	SessionErr
 	DatabaseErr
 	RedoErr
+	AuthErr
 )
 
 const (

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
+	"fmt"
 )
 
 //创建小时空
@@ -72,6 +73,56 @@ func (h *Handler) UpdateTimespace(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 
+	tid, err := strconv.Atoi(c.Param("tid"))
+	if err != nil {
+		r.Code = RequestErr
+		r.Error = err.Error()
+		h.danger("UpdateTimespace", "strconv.Atoi(c.Param, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+	t, err := models.GetTimespaceById(uint(tid))
+	if err != nil {
+		r.Code = DatabaseErr
+		r.Error = err.Error()
+		h.danger("UpdateTimespace", "models.GetTimespaceById, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	if t.UserID != u.ID {
+		err = fmt.Errorf("当前用户没有进行该操作的权限")
+		r.Code = AuthErr
+		r.Error = err.Error()
+		h.danger("UpdateTimespace", "err=[%+v]", err)
+		return c.JSON(http.StatusBadRequest, r)
+	}
+
+	request := new(requestUpdateTimespace)
+	err = c.Bind(request)
+	if err != nil {
+		r.Code = JSONErr
+		r.Error = err.Error()
+		h.danger("UpdateTimespace", "c.Bind, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	updates := make(map[string]interface{})
+	if t.Topic != request.Topic {
+		updates["topic"] = request.Topic
+	}
+	if t.Desc != request.Desc {
+		updates["desc"] = request.Desc
+	}
+
+	err = t.Update(updates)
+	if err != nil {
+		r.Code = DatabaseErr
+		r.Error = err.Error()
+		h.danger("UpdateTimespace", "t.Update, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	r.Info = "UPDATE SUCCESS"
+	h.info("UpdateTimespace", "更新小时空, t=[%+v]", t)
 	return c.JSON(http.StatusOK, r)
 }
 
@@ -150,6 +201,29 @@ func (h *Handler) DeleteTimespace(c echo.Context) (err error) {
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 
+	tid, err := strconv.Atoi(c.Param("tid"))
+	if err != nil {
+		r.Code = RequestErr
+		r.Error = err.Error()
+		h.danger("DeleteTimespace", "strconv.Atoi(c.Param, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+	t, err := models.GetTimespaceById(uint(tid))
+	if err != nil {
+		r.Code = DatabaseErr
+		r.Error = err.Error()
+		h.danger("DeleteTimespace", "models.GetTimespaceById, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	if t.UserID != u.ID {
+		err = fmt.Errorf("当前用户没有进行该操作的权限")
+		r.Code = AuthErr
+		r.Error = err.Error()
+		h.danger("DeleteTimespace", "err=[%+v]", err)
+		return c.JSON(http.StatusBadRequest, r)
+	}
+
 	return c.JSON(http.StatusOK, r)
 }
 
@@ -162,6 +236,21 @@ func (h *Handler) GetTimespaceDetail(c echo.Context) (err error) {
 		r.Code = DatabaseErr
 		r.Error = err.Error()
 		h.danger("GetTimespaceDetail", "models.GetUserByOpenId, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+
+	tid, err := strconv.Atoi(c.Param("tid"))
+	if err != nil {
+		r.Code = RequestErr
+		r.Error = err.Error()
+		h.danger("GetTimespaceDetail", "strconv.Atoi(c.Param, err=[%+v]", err)
+		return c.JSON(http.StatusInternalServerError, r)
+	}
+	t, err := models.GetTimespaceById(uint(tid))
+	if err != nil {
+		r.Code = DatabaseErr
+		r.Error = err.Error()
+		h.danger("GetTimespaceDetail", "models.GetTimespaceById, err=[%+v]", err)
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 
@@ -190,7 +279,7 @@ func (h *Handler) JoinTimespace(c echo.Context) (err error) {
 	if err != nil {
 		r.Code = DatabaseErr
 		r.Error = err.Error()
-		h.danger("JoinTimespace", "用户成功加入小时空，models.GetTimespaceById, err=[%+v]", err)
+		h.danger("JoinTimespace", "models.GetTimespaceById, err=[%+v]", err)
 		return c.JSON(http.StatusInternalServerError, r)
 	}
 
@@ -203,7 +292,7 @@ func (h *Handler) JoinTimespace(c echo.Context) (err error) {
 	}
 
 	r.Info = "JOINED SUCCESS"
-	h.info("JoinTimespace", "timespace=[%+v], user=[%+v]", t, u)
+	h.info("JoinTimespace", "用户成功加入小时空，timespace=[%+v], user=[%+v]", t, u)
 	return c.JSON(http.StatusOK, r)
 }
 

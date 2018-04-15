@@ -19,7 +19,7 @@ func main() {
 
 	e.POST("/users", h.Protect(h.CreateUser))
 	//timespace add me
-	e.GET("/users/:uid", h.Protect(h.GetUserDetail))
+	//e.GET("/users/:uid", h.Protect(h.GetUserDetail))
 
 	//创建小时空
 	e.POST("/timespaces", h.Protect(h.CreateTimespace))
@@ -36,7 +36,7 @@ func main() {
 	//小时空添加当前用户
 	e.PATCH("/timespaces/:tid/add", h.Protect(h.JoinTimespace))
 
-	e.GET("/labels", h.Protect(h.GetLabels))
+	//e.GET("/labels", h.Protect(h.GetLabels))
 	e.GET("/labels/:lid/timespace", h.Protect(h.GetTimespace))
 
 	e.Start(":8823")

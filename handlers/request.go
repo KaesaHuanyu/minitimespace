@@ -18,4 +18,9 @@ type (
 		EndTime   string `json:"end_time,omitempty"`
 		Labels    []uint `json:"labels,omitempty"`
 	}
+
+	requestUpdateTimespace struct {
+		Topic     string `json:"topic,omitempty"`
+		Desc      string `json:"desc,omitempty"`
+	}
 )
